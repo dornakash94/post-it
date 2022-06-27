@@ -13,8 +13,14 @@ This project enhanced my skills with:
 1. architecture
 2. rest & swagger
 3. defensive - throttle, input validations
-4. tdd
+4. tdd - mocking redis/mongo
 5. mongo
-6. redis
+6. docker
 
 ![architecture](img.png)
+
+# how to run
+
+1. 1st we build the docker image: `docker build --tag post-it .`
+2. raise the docker images `docker-compose -f docker-compose.yaml up -d`
+3. shutdown `docker-compose -f docker-compose.yaml down`

@@ -132,8 +132,8 @@ const init = (): Context => {
       );
 
       serverPromise = Promise.resolve(
-        app.listen(8000, function () {
-          logger.info("post-it is now running at http://localhost:8000");
+        app.listen(8080, function () {
+          logger.info("post-it is now running at http://localhost:8080");
           ready = true;
         })
       );
