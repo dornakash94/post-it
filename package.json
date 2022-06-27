@@ -75,6 +75,7 @@
     "pino-pretty": "^8.0.0",
     "rate-limit-redis": "^3.0.1",
     "redis": "^4.1.0",
+    "redis-memory-server": "^0.5.0",
     "swagger-express-middleware": "^4.0.2",
     "swagger-typescript-api": "^9.3.1",
     "typescript-logger": "^5.0.1"

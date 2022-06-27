@@ -15,7 +15,7 @@ import RedisStore from "rate-limit-redis";
 import rateLimit from "express-rate-limit";
 import { Server } from "http";
 
-interface Index {
+interface Context {
   redisClient: RedisClientType;
   app: Express;
   jwtInstance: Auth.JwtInstance<Session>;
@@ -25,18 +25,10 @@ interface Index {
   close: () => void;
 }
 
-const init = (): Index => {
+const init = (): Context => {
   if (!process.env.JWT_SECRET) {
     throw "couldn't find 'JWT_SECRET' on the env";
   }
-
-  if (!process.env.REDIS_CONNECTION) {
-    throw "couldn't find 'MONGO_CONNECTION' on the env";
-  }
-
-  const redisClient = createClient({
-    url: process.env.REDIS_CONNECTION,
-  });
 
   const app = express();
 
@@ -50,6 +42,16 @@ const init = (): Index => {
   let serverPromise: Promise<Server> | undefined;
   let ready = false;
 
+  const result = {
+    redisClient: undefined as any,
+    isReady: undefined as any,
+    close: undefined as any,
+    app,
+    jwtInstance,
+    userDao,
+    postDao,
+  };
+
   const isReady = async (): Promise<boolean> => {
     if (!serverPromise) {
       if (!process.env.MONGO_CONNECTION) {
@@ -57,7 +59,16 @@ const init = (): Index => {
       }
 
       await mongoose.connect(process.env.MONGO_CONNECTION);
-      await redisClient.connect();
+
+      if (!process.env.REDIS_CONNECTION) {
+        throw "couldn't find 'REDIS_CONNECTION' on the env";
+      }
+
+      result.redisClient = createClient({
+        url: process.env.REDIS_CONNECTION,
+      });
+
+      await result.redisClient.connect();
 
       const limiter = rateLimit({
         windowMs: 1000 * 60 * 15,
@@ -65,7 +76,8 @@ const init = (): Index => {
         standardHeaders: true,
         legacyHeaders: false,
         store: new RedisStore({
-          sendCommand: (...args: string[]) => redisClient.sendCommand(args),
+          sendCommand: (...args: string[]) =>
+            result.redisClient.sendCommand(args),
         }),
       });
 
@@ -133,22 +145,17 @@ const init = (): Index => {
   const close = () => {
     serverPromise?.then((server) => server.close());
     mongoose.connection.close();
-    redisClient.quit();
+    result.redisClient.quit();
   };
 
   if (!process.env.MANUAL_START) {
     isReady(); //will auto start the server
   }
 
-  return {
-    redisClient: redisClient as any,
-    app,
-    jwtInstance,
-    userDao,
-    postDao,
-    isReady,
-    close,
-  };
+  result.isReady = isReady;
+  result.close = close;
+
+  return result;
 };
 
 export default init();
