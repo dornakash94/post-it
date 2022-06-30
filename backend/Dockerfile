@@ -1,4 +1,4 @@
-FROM node:18-alpine
+FROM node:lts-alpine
 
 RUN apk update && apk --no-cache --update add build-base 
 
@@ -7,6 +7,7 @@ COPY . .
 
 RUN npm install
 
-# Bundle app source
+
+USER node
 EXPOSE 8000
 CMD [ "node", "dist/index.js" ]
