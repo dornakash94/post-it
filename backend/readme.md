@@ -18,9 +18,3 @@ This project enhanced my skills with:
 6. docker
 
 ![architecture](img.png)
-
-# how to run
-
-1. 1st we build the docker image: `docker build --tag post-it .`
-2. raise the docker images `docker-compose -f docker-compose.yaml up -d`
-3. shutdown `docker-compose -f docker-compose.yaml down`

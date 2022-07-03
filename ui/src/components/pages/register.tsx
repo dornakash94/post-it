@@ -1,6 +1,7 @@
 import React from "react";
 import { Button, Form, InputGroup } from "react-bootstrap";
-import { api } from "../gateway/post-it";
+import { useLocation, useNavigate } from "react-router-dom";
+import { api } from "../../gateway/post-it";
 
 function Register() {
   const [formData, setFormData] = React.useState({
@@ -8,13 +9,22 @@ function Register() {
     password: "",
     confirmPassword: "",
     name: "",
-    stayConnected: false,
     loading: false,
     error: "",
   });
 
+  const navigate = useNavigate();
+  const location = useLocation();
+
   const handleSubmit = async (event: React.FormEvent) => {
-    if (formData.password !== formData.confirmPassword) event.preventDefault();
+    if (
+      formData.password !== formData.confirmPassword ||
+      formData.name.length < 4
+    ) {
+      event.preventDefault();
+      return;
+    }
+
     setFormData({ ...formData, loading: true });
     await doRegister();
   };
@@ -27,8 +37,20 @@ function Register() {
         author: formData.name,
       });
 
-      //const token = registerResponse.data.account?.token;
-      //todo success
+      const token = registerResponse.data.account?.token;
+      localStorage.setItem(
+        "account",
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        JSON.stringify(registerResponse.data.account!)
+      );
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      localStorage.setItem("token", token!);
+
+      const locationState = location.state as { from?: Location };
+      const from = locationState?.from?.pathname || "/";
+
+      if (from === "/logout" || from === "/404") navigate("/");
+      else navigate(from);
     } catch (error) {
       const errorMessage = () => {
         if (error instanceof Response) {
@@ -57,7 +79,7 @@ function Register() {
     return (
       <div>
         <Form className="mb-0" onSubmit={handleSubmit}>
-          <Form.Group className="mb-3" controlId="formBasicEmail">
+          <Form.Group className="mb-3" controlId="formEmail">
             <Form.Control
               type="email"
               placeholder="Enter email"
@@ -68,7 +90,7 @@ function Register() {
             />
           </Form.Group>
 
-          <Form.Group className="mb-3" controlId="formBasicPassword">
+          <Form.Group className="mb-3" controlId="formPassword">
             <InputGroup hasValidation={true}>
               <Form.Control
                 type="password"
@@ -83,7 +105,7 @@ function Register() {
             </InputGroup>
           </Form.Group>
 
-          <Form.Group className="mb-3" controlId="formBasicPassword">
+          <Form.Group className="mb-3" controlId="formConfirmPassword">
             <InputGroup hasValidation={true}>
               <Form.Control
                 type="password"
@@ -104,15 +126,15 @@ function Register() {
             </InputGroup>
           </Form.Group>
 
-          <Form.Group className="mb-3" controlId="formBasicName">
-            <Form.Control type="text" placeholder="Enter your name" />
-          </Form.Group>
-
-          <Form.Group className="mb-3" controlId="formBasicCheckbox">
-            <Form.Check
-              type="checkbox"
-              label="keep me logged in"
-              style={{ fontSize: 15, margin: "auto", maxWidth: 150 }}
+          <Form.Group className="mb-3" controlId="formName">
+            <Form.Control
+              type="text"
+              placeholder="Enter your name"
+              onChange={(e) =>
+                setFormData({ ...formData, name: e.target.value })
+              }
+              value={formData.name}
+              minLength={4}
             />
           </Form.Group>
 
@@ -134,9 +156,6 @@ function Register() {
 
   return (
     <div>
-      <h2>Welcome to post-it!</h2>
-      <br />
-
       <div style={{ margin: "auto", maxWidth: 300 }}>
         {formData.loading ? renderLoader() : renderForm()}
       </div>
