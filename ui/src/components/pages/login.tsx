@@ -1,7 +1,9 @@
 import React from "react";
 import { Button, Form, InputGroup } from "react-bootstrap";
+import { useDispatch } from "react-redux";
 import { useLocation, useNavigate } from "react-router-dom";
 import { api } from "../../gateway/post-it";
+import { setAccount } from "../../store/reducers/user-reducer";
 
 function Login() {
   const [formData, setFormData] = React.useState({
@@ -10,6 +12,8 @@ function Login() {
     loading: false,
     error: "",
   });
+
+  const dispatch = useDispatch();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -26,15 +30,7 @@ function Login() {
         password: formData.password,
       });
 
-      const token = loginResponse.data.account?.token;
-
-      localStorage.setItem(
-        "account",
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        JSON.stringify(loginResponse.data.account!)
-      );
-      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      localStorage.setItem("token", token!);
+      dispatch(setAccount(loginResponse.data.account));
 
       const locationState = location.state as { from?: Location };
       const from = locationState?.from?.pathname || "/";

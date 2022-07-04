@@ -1,7 +1,9 @@
 import React from "react";
 import { Button, Form, InputGroup } from "react-bootstrap";
+import { useDispatch } from "react-redux";
 import { useLocation, useNavigate } from "react-router-dom";
 import { api } from "../../gateway/post-it";
+import { setAccount } from "../../store/reducers/user-reducer";
 
 function Register() {
   const [formData, setFormData] = React.useState({
@@ -13,6 +15,7 @@ function Register() {
     error: "",
   });
 
+  const dispatch = useDispatch();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -37,14 +40,7 @@ function Register() {
         author: formData.name,
       });
 
-      const token = registerResponse.data.account?.token;
-      localStorage.setItem(
-        "account",
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        JSON.stringify(registerResponse.data.account!)
-      );
-      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      localStorage.setItem("token", token!);
+      dispatch(setAccount(registerResponse.data.account));
 
       const locationState = location.state as { from?: Location };
       const from = locationState?.from?.pathname || "/";

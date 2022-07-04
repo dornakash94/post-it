@@ -1,17 +1,16 @@
-import { Navigate, useLocation } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { logout } from "../../store/reducers/user-reducer";
 
 function Logout() {
-  const location = useLocation();
+  const dispatch = useDispatch();
 
   localStorage.clear();
 
-  const locationState = location.state as { from?: string };
-  const from = locationState?.from || "/";
+  dispatch(logout());
 
   return (
     <div>
       <p>Logout in process</p>
-      <Navigate to={from} />
     </div>
   );
 }

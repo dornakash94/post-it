@@ -1,15 +1,57 @@
-//import { api } from "../../gateway/post-it";
+import { api } from "../../gateway/post-it";
+
+import { useDispatch, useSelector } from "react-redux";
+import { accountSelector, postSummariesSelector } from "../../store";
+import React from "react";
+import { setPostSummaries } from "../../store/reducers/post-reducer";
+import PostSummaryComp from "../post-summary";
+import PostListComp from "../post-list";
 
 function Home() {
-  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-  const token = localStorage.getItem("token")!;
+  const account = useSelector(accountSelector);
+  if (!account?.token) return <div />;
 
-  const requestHeaders: HeadersInit = new Headers();
-  requestHeaders.set("Authorization", token);
+  const dispatch = useDispatch();
+  const postSummaries = useSelector(postSummariesSelector);
 
-  //api.posts.getAllPosts({}, { headers: requestHeaders });
-  return <div>hi</div>;
-  //TODO -> if not login redirect to index
+  const [state, setState] = React.useState({
+    loading: true,
+  });
+
+  const fetchPosts = async (token: string) => {
+    const getAllPostsResponse = await api.posts.getAllPosts(
+      {},
+      { headers: { Authorization: token } }
+    );
+
+    const postSummaries = getAllPostsResponse.data.postsSummaries;
+
+    if (postSummaries) {
+      dispatch(setPostSummaries(postSummaries));
+    }
+
+    setState({ ...state, loading: false });
+  };
+
+  React.useEffect(() => {
+    account.token && fetchPosts(account.token);
+  }, []);
+
+  const renderPosts = () => {
+    return <PostListComp postSummaries={postSummaries} />;
+  };
+
+  const renderLoader = () => {
+    return <div>Loading</div>;
+  };
+
+  return (
+    <div>
+      <div style={{ margin: "auto", maxWidth: 300 }}>
+        {state.loading ? renderLoader() : renderPosts()}
+      </div>
+    </div>
+  );
 }
 
 export default Home;

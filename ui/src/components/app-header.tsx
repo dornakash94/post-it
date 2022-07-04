@@ -1,10 +1,12 @@
 import { Container, Nav, Navbar } from "react-bootstrap";
+import { useSelector } from "react-redux";
+import { accountSelector } from "../store";
 
 function AppHeader() {
-  const token = localStorage.getItem("token");
+  const account = useSelector(accountSelector);
 
   const SwitchButtons = () => {
-    if (token) {
+    if (account) {
       return (
         <Nav>
           <Nav.Link href="/logout">Log-out</Nav.Link>

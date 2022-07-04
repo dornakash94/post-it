@@ -1,20 +1,12 @@
-import { Button } from "react-bootstrap";
-import { useNavigate } from "react-router-dom";
-import { Account } from "../generated/swagger/post-it";
+import { useSelector } from "react-redux";
+import { accountSelector } from "../store";
 
 function UserHeader() {
-  const navigate = useNavigate();
+  const account = useSelector(accountSelector);
 
-  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-  const account: Account = JSON.parse(localStorage.getItem("account")!);
+  if (!account) return <div />;
 
-  return (
-    <div>
-      You are currently logged in as {account.author}
-      <Button onClick={() => navigate("/logout")}>logout</Button>
-    </div>
-  );
-  //TODO -> if not login redirect to index
+  return <div>You are currently logged in as {account.author}</div>;
 }
 
 export default UserHeader;

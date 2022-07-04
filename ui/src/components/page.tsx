@@ -1,3 +1,4 @@
+import { useSelector } from "react-redux";
 import {
   BrowserRouter,
   Navigate,
@@ -5,6 +6,7 @@ import {
   Routes,
   useLocation,
 } from "react-router-dom";
+import { accountSelector } from "../store";
 import Home from "./pages/home";
 import Login from "./pages/login";
 import Logout from "./pages/logout";
@@ -15,9 +17,9 @@ import UserHeader from "./user-header";
 function Page() {
   const TokenEnforcer = ({ Component }: { Component: React.FC }) => {
     const location = useLocation();
-    const token = localStorage.getItem("token");
+    const account = useSelector(accountSelector);
 
-    return token ? (
+    return account ? (
       <div>
         <UserHeader />
         <Component />
@@ -28,9 +30,8 @@ function Page() {
   };
 
   const NoTokenEnforcer = ({ Component }: { Component: React.FC }) => {
-    const token = localStorage.getItem("token");
-
-    return token ? <Navigate to="/" /> : <Component />;
+    const account = useSelector(accountSelector);
+    return account ? <Navigate to="/" /> : <Component />;
   };
 
   return (
