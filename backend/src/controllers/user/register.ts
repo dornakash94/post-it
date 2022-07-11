@@ -1,4 +1,4 @@
-import { Controller, ControllerResponse } from "../helper";
+import { Controller, ControllerResponse, validateBase64Image } from "../helper";
 import { User } from "../../generated/swagger/post-it";
 import index from "../../";
 import emailValidator from "email-validator";
@@ -28,12 +28,15 @@ const controller: Controller<
         error: "invalid email",
       });
     }
+    validateBase64Image(body.author_image);
+
     const salt = await bcrypt.genSalt();
     const password = await bcrypt.hash(body.password, salt);
     const success = await index.userDao.insert({
       email: body.email,
       password: password,
       author: body.author,
+      author_image: body.author_image,
     });
 
     if (success) {

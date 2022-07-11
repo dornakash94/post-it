@@ -1,81 +1,145 @@
-import { Post, PostSummary } from "../generated/swagger/post-it";
+import { Post } from "../generated/swagger/post-it";
 import { PostDto } from "../persistence/dto/PostDto";
 import index from "../";
 
+interface AuthorWithImage {
+  author: string;
+  author_image?: string;
+}
+
+const defaultAuthorWithImage: AuthorWithImage = {
+  author: "Unknown",
+  author_image: undefined,
+};
+const allFields: Set<string> = new Set([
+  "id",
+  "title",
+  "content",
+  "image",
+  "creationTime",
+  "author",
+  "author_image",
+]);
+
 export const mapPostDtosToPosts = async (
-  postDtos: PostDto[]
+  postDtos: PostDto[],
+  fieldMask: Set<string> = allFields
 ): Promise<Post[]> => {
-  const emails = Array.from(new Set(postDtos.map((postDto) => postDto.email)));
-  const emailToAuthor: Map<string, string> = new Map<string, string>();
+  if (fieldMask.size === 0) {
+    return Promise.resolve([]);
+  }
 
-  await Promise.all(
-    emails.map(async (email) => {
-      const author = await index.redisClient.get(email);
+  const emailToAuthorWithImage: Map<string, AuthorWithImage> = new Map<
+    string,
+    AuthorWithImage
+  >();
 
-      if (author) {
-        emailToAuthor.set(email, author);
-      }
-    })
-  );
-
-  const needToFetchEmails = emails.filter((email) => !emailToAuthor.has(email));
-
-  if (needToFetchEmails.length > 0) {
-    (await index.userDao.getUsersByEmails(new Set(needToFetchEmails))).forEach(
-      (userDto) => {
-        index.redisClient.set(userDto.email, userDto.author, { EX: 60 * 10 });
-        emailToAuthor.set(userDto.email, userDto.author);
-      }
+  if (fieldMask.has("author") || fieldMask.has("author_image")) {
+    const emails = Array.from(
+      new Set(postDtos.map((postDto) => postDto.email))
     );
+
+    await Promise.all(
+      emails.map(async (email) => {
+        const authorWithImageJsonString = await index.redisClient.get(email);
+
+        if (authorWithImageJsonString) {
+          emailToAuthorWithImage.set(
+            email,
+            JSON.parse(authorWithImageJsonString)
+          );
+        }
+      })
+    );
+
+    const needToFetchEmails = emails.filter(
+      (email) => !emailToAuthorWithImage.has(email)
+    );
+
+    if (needToFetchEmails.length > 0) {
+      (
+        await index.userDao.getUsersByEmails(new Set(needToFetchEmails))
+      ).forEach((userDto) => {
+        const authorWithImage: AuthorWithImage = {
+          author: userDto.author,
+          author_image: userDto.author_image,
+        };
+
+        index.redisClient.set(userDto.email, JSON.stringify(authorWithImage), {
+          EX: 60 * 10,
+        });
+
+        emailToAuthorWithImage.set(userDto.email, authorWithImage);
+      });
+    }
   }
 
   return Promise.all(
     postDtos.map((postDto: PostDto) =>
-      mapPostDtoToPost(postDto, (email: string) =>
-        Promise.resolve(emailToAuthor.get(email) || "Unknown")
+      mapPostDtoToPost(postDto, fieldMask, (email: string) =>
+        Promise.resolve(
+          emailToAuthorWithImage.get(email) || defaultAuthorWithImage
+        )
       )
     )
   );
+  // }
 };
 
 export const mapPostDtoToPost = async (
   postDto: PostDto,
-  emailToAuthor: (email: string) => Promise<string> = defaultEmailToAuthor
+  fieldMask: Set<string> = allFields,
+  emailToAuthorWithImage: (
+    email: string
+  ) => Promise<AuthorWithImage> = defaultEmailToAuthorWithImage
 ): Promise<Post> => {
-  const author = await emailToAuthor(postDto.email);
+  if (fieldMask.size === 0) return {};
+  const getAuthorAndImage = (): Promise<AuthorWithImage | undefined> => {
+    if (fieldMask.has("author") || fieldMask.has("author_image")) {
+      return emailToAuthorWithImage(postDto.email);
+    }
+
+    return Promise.resolve(undefined);
+  };
+
+  const authorAndImage = await getAuthorAndImage();
 
   return {
-    id: postDto.id,
-    title: postDto.title,
-    content: postDto.content,
-    image: postDto.image,
-    creationTime: postDto.creationTime,
-    author,
+    id: fieldMask.has("id") ? postDto.id : undefined,
+    title: fieldMask.has("title") ? postDto.title : undefined,
+    content: fieldMask.has("content") ? postDto.content : undefined,
+    image: fieldMask.has("image") ? postDto.image : undefined,
+    creationTime: fieldMask.has("creationTime")
+      ? postDto.creationTime
+      : undefined,
+    author: authorAndImage?.author,
+    author_image: authorAndImage?.author_image,
   };
 };
 
-export const mapPostToPostSummary = (posts: Post[]): PostSummary[] => {
-  return posts.map((post) => {
-    return {
-      id: post.id,
-      title: post.title,
-      author: post.author,
-    };
-  });
-};
+const defaultEmailToAuthorWithImage = async (
+  email: string
+): Promise<AuthorWithImage> => {
+  const authorWithImageJsonStr = await index.redisClient.get(email);
 
-const defaultEmailToAuthor = async (email: string): Promise<string> => {
-  const author = await index.redisClient.get(email);
-
-  if (author) {
-    return author;
+  if (authorWithImageJsonStr) {
+    return JSON.parse(authorWithImageJsonStr);
   }
 
   const user = await index.userDao.get(email);
 
   if (user) {
-    index.redisClient.set(email, user.author, { EX: 60 * 10 });
+    const authorWithImage = {
+      author: user.author,
+      author_image: user.author_image,
+    };
+
+    index.redisClient.set(email, JSON.stringify(authorWithImage), {
+      EX: 60 * 10,
+    });
+
+    return authorWithImage;
   }
 
-  return user ? user.author : "Unknown";
+  return defaultAuthorWithImage;
 };

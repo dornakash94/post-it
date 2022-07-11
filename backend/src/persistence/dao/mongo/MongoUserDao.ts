@@ -7,6 +7,7 @@ const userSchema = new mongoose.Schema({
   email: { type: String, required: true, unique: true },
   password: { type: String, required: true },
   author: { type: String, required: true },
+  author_image: { type: String, required: false },
 });
 
 userSchema.plugin(mongooseUniqueValidator);
@@ -51,6 +52,7 @@ const mapMongoToDto = (
     email: res.email,
     password: res.password,
     author: res.author,
+    author_image: res.author_image,
   };
 };
 

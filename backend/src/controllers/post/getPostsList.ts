@@ -1,12 +1,9 @@
-import { Controller, ControllerResponse, Session } from "../helper";
+import { asArr, Controller, ControllerResponse, Session } from "../helper";
 import index from "../..";
 import { Posts } from "../../generated/swagger/post-it";
 import Api = Posts.GetAllPosts;
 import { controllerWithSession } from "../helper";
-import {
-  mapPostDtosToPosts,
-  mapPostToPostSummary,
-} from "../../mappers/post-mappers";
+import { mapPostDtosToPosts } from "../../mappers/post-mappers";
 
 const controller: Controller<
   Api.RequestParams,
@@ -24,18 +21,18 @@ const controller: Controller<
     body: Api.RequestBody,
     session: Session
   ): Promise<ControllerResponse<Api.ResponseBody>> => {
-    //TODO - throttle so user wont try to spam us
     const postsDtos = await index.postDao.getAllPosts(
       query["page-size"] || 30,
       query["page-number"] || 0,
       query["from-id"] || 0
     );
 
-    const posts = await mapPostDtosToPosts(postsDtos);
-    const postsSummaries = mapPostToPostSummary(posts);
+    const fieldMaskSet: Set<string> = new Set(asArr(query["field-mask"]));
+
+    const posts = await mapPostDtosToPosts(postsDtos, fieldMaskSet);
 
     const response: Api.ResponseBody = {
-      postsSummaries,
+      posts,
     };
     return Promise.resolve({
       body: response,

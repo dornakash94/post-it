@@ -28,22 +28,20 @@ const controller: Controller<
     body: Api.RequestBody,
     session: Session
   ): Promise<ControllerResponse<Api.ResponseBody>> => {
-    //TODO - throttle so user wont try to spam us
     validateMandatoryParam("title", body.post.title);
     validateMandatoryParam("content", body.post.content);
     validateBase64Image(body.post.image);
 
     const postDto: PostDto = {
-      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       title: body.post!.title!,
       content: body.post!.content!,
-      image: body.post?.image,
+      image: body.post.image ? body.post.image : undefined,
       email: session.email,
       creationTime: new Date().getTime(),
     };
-    /* eslint-enable @typescript-eslint/no-non-null-assertion */
 
     const insertedPostDto = await index.postDao.insert(postDto);
+
     const post = await mapPostDtoToPost(insertedPostDto);
 
     const response: Api.ResponseBody = {

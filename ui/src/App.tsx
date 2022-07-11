@@ -4,6 +4,7 @@ import Page from "./components/page";
 import AppHeader from "./components/app-header";
 import { Provider } from "react-redux";
 import store from "./store";
+import { BrowserRouter } from "react-router-dom";
 
 function App() {
   return (
@@ -17,7 +18,9 @@ function App() {
 
 const AppWrapper = () => (
   <Provider store={store}>
-    <App />
+    <BrowserRouter>
+      <App />
+    </BrowserRouter>
   </Provider>
 );
 

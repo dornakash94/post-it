@@ -3,11 +3,12 @@ import { Post, PostSummary } from "../../generated/swagger/post-it";
 
 interface PostState {
   postSummaries: PostSummary[];
-  post?: Post;
+  postIdToPost: { [id: number]: Post };
 }
 
 const initialState: PostState = {
   postSummaries: [],
+  postIdToPost: {},
 };
 
 export const postSlice = createSlice({
@@ -18,7 +19,10 @@ export const postSlice = createSlice({
       state.postSummaries = action.payload;
     },
     setPost: (state, action: PayloadAction<Post>) => {
-      state.post = action.payload;
+      const newPosIdToPost = { ...state.postIdToPost };
+      newPosIdToPost[action.payload.id!] = action.payload;
+
+      state.postIdToPost = newPosIdToPost;
     },
   },
 });

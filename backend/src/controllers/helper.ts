@@ -90,3 +90,9 @@ export const validateMandatoryParam = <T>(paramName: string, value?: T) => {
   if (typeof value === "undefined" || value === null)
     throwError(400, `missing parameter ${paramName}`);
 };
+
+export const asArr = <T>(something: T[] | undefined): T[] | undefined => {
+  if (!something) return undefined;
+  if (!Array.isArray(something)) return [something];
+  return something;
+};

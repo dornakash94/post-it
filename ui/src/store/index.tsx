@@ -13,6 +13,7 @@ type RootState = ReturnType<typeof store.getState>;
 export const accountSelector = (state: RootState) => state.account.account;
 export const postSummariesSelector = (state: RootState) =>
   state.post.postSummaries;
-export const postSelector = (state: RootState) => state.post.post;
+export const postIdToPostSelector = (state: RootState) =>
+  state.post.postIdToPost;
 
 export default store;

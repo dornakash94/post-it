@@ -1,55 +1,54 @@
 import { api } from "../../gateway/post-it";
 
-import { useDispatch, useSelector } from "react-redux";
-import { accountSelector, postSummariesSelector } from "../../store";
-import React from "react";
-import { setPostSummaries } from "../../store/reducers/post-reducer";
-import PostSummaryComp from "../post-summary";
+import { useSelector } from "react-redux";
+import { accountSelector } from "../../store";
 import PostListComp from "../post-list";
+
+import PaginationComponent from "../pagination";
+import { Post } from "../../generated/swagger/post-it";
+import PostCreator from "../post-creator";
+
+const allFields: string[] = [
+  "id",
+  "title",
+  "content",
+  "image",
+  "creationTime",
+  "author",
+  "author_image",
+];
 
 function Home() {
   const account = useSelector(accountSelector);
   if (!account?.token) return <div />;
 
-  const dispatch = useDispatch();
-  const postSummaries = useSelector(postSummariesSelector);
+  const token = account.token;
 
-  const [state, setState] = React.useState({
-    loading: true,
-  });
-
-  const fetchPosts = async (token: string) => {
+  const fetchPage = async (
+    pageNumber: number,
+    pageSize: number
+  ): Promise<Post[]> => {
     const getAllPostsResponse = await api.posts.getAllPosts(
-      {},
+      {
+        "page-number": pageNumber,
+        "page-size": pageSize,
+        "field-mask": allFields,
+      },
       { headers: { Authorization: token } }
     );
 
-    const postSummaries = getAllPostsResponse.data.postsSummaries;
-
-    if (postSummaries) {
-      dispatch(setPostSummaries(postSummaries));
-    }
-
-    setState({ ...state, loading: false });
+    return getAllPostsResponse.data.posts || [];
   };
 
-  React.useEffect(() => {
-    account.token && fetchPosts(account.token);
-  }, []);
-
-  const renderPosts = () => {
-    return <PostListComp postSummaries={postSummaries} />;
-  };
-
-  const renderLoader = () => {
-    return <div>Loading</div>;
+  const render = (posts: Post[]): JSX.Element => {
+    return <PostListComp posts={posts} />;
   };
 
   return (
-    <div>
-      <div style={{ margin: "auto", maxWidth: 300 }}>
-        {state.loading ? renderLoader() : renderPosts()}
-      </div>
+    <div style={{ margin: "auto", maxWidth: 300 }}>
+      <PostCreator />
+      <br />
+      <PaginationComponent fetchPage={fetchPage} render={render} pageSize={9} />
     </div>
   );
 }

@@ -18,7 +18,7 @@ export interface RegisterResponse {
 }
 
 export interface GetAllPostsResponse {
-  postsSummaries?: PostSummary[];
+  posts?: Post[];
 }
 
 export interface GetPostResponse {
@@ -36,6 +36,7 @@ export interface EditPostResponse {
 export interface Account {
   token?: string;
   author?: string;
+  author_image?: string;
 }
 
 export interface Post {
@@ -48,13 +49,7 @@ export interface Post {
   /** @format int64 */
   creationTime?: number;
   author?: string;
-}
-
-export interface PostSummary {
-  /** @format int64 */
-  id?: number;
-  title?: string;
-  author?: string;
+  author_image?: string;
 }
 
 export interface LoginPayload {
@@ -68,6 +63,7 @@ export interface RegisterPayload {
   email: string;
   password: string;
   author: string;
+  author_image?: string;
 }
 
 export interface GetAllPostsParams {
@@ -89,6 +85,7 @@ export interface GetAllPostsParams {
    * @format int64
    */
   "from-id"?: number;
+  "field-mask"?: string[];
 }
 
 export interface CreatePostPayload {
@@ -140,7 +137,12 @@ export namespace Posts {
    */
   export namespace GetAllPosts {
     export type RequestParams = {};
-    export type RequestQuery = { "page-number"?: number; "page-size"?: number; "from-id"?: number };
+    export type RequestQuery = {
+      "page-number"?: number;
+      "page-size"?: number;
+      "from-id"?: number;
+      "field-mask"?: string[];
+    };
     export type RequestBody = {};
     export type RequestHeaders = { authorization: string };
     export type ResponseBody = GetAllPostsResponse;

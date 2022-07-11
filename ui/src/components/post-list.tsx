@@ -1,17 +1,17 @@
 import { Accordion } from "react-bootstrap";
-import { PostSummary } from "../generated/swagger/post-it";
-import PostSummaryComp from "./post-summary";
+import { Post } from "../generated/swagger/post-it";
+import PostsComp from "./post";
 
 interface PostListProps {
-  postSummaries: PostSummary[];
+  posts: Post[];
 }
 
 function PostListComp(props: PostListProps) {
-  if (props.postSummaries.length > 0) {
+  if (props.posts.length > 0) {
     return (
       <Accordion defaultActiveKey="0">
-        {props.postSummaries.map((postSummary) => {
-          return <PostSummaryComp postSummary={postSummary} />;
+        {props.posts.map((post) => {
+          return <PostsComp post={post} key={post.id} />;
         })}
       </Accordion>
     );

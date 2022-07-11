@@ -4,13 +4,15 @@ import { useDispatch } from "react-redux";
 import { useLocation, useNavigate } from "react-router-dom";
 import { api } from "../../gateway/post-it";
 import { setAccount } from "../../store/reducers/user-reducer";
+import Avatar from "../avatar";
 
 function Register() {
   const [formData, setFormData] = React.useState({
     email: "",
     password: "",
     confirmPassword: "",
-    name: "",
+    authorImage: undefined as string | undefined,
+    author: "",
     loading: false,
     error: "",
   });
@@ -22,7 +24,7 @@ function Register() {
   const handleSubmit = async (event: React.FormEvent) => {
     if (
       formData.password !== formData.confirmPassword ||
-      formData.name.length < 4
+      formData.author.length < 4
     ) {
       event.preventDefault();
       return;
@@ -32,12 +34,26 @@ function Register() {
     await doRegister();
   };
 
+  const onImageChange = (files: FileList) => {
+    if (files.length > 0) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        setFormData({ ...formData, authorImage: e.target!.result as string });
+      };
+      reader.readAsDataURL(files[0]);
+    } else {
+      setFormData({ ...formData, authorImage: undefined });
+    }
+  };
+
   const doRegister = async () => {
     try {
       const registerResponse = await api.user.register({
         email: formData.email,
         password: formData.password,
-        author: formData.name,
+        author: formData.author,
+        author_image: formData.authorImage,
       });
 
       dispatch(setAccount(registerResponse.data.account));
@@ -82,7 +98,6 @@ function Register() {
               onChange={(e) =>
                 setFormData({ ...formData, email: e.target.value })
               }
-              value={formData.email}
             />
           </Form.Group>
 
@@ -94,7 +109,6 @@ function Register() {
                 onChange={(e) =>
                   setFormData({ ...formData, password: e.target.value })
                 }
-                value={formData.password}
                 isInvalid={formData.password.length < 4}
                 minLength={4}
               />
@@ -109,7 +123,6 @@ function Register() {
                 onChange={(e) =>
                   setFormData({ ...formData, confirmPassword: e.target.value })
                 }
-                value={formData.confirmPassword}
                 isInvalid={
                   formData.confirmPassword !== "" &&
                   formData.password !== formData.confirmPassword
@@ -127,10 +140,19 @@ function Register() {
               type="text"
               placeholder="Enter your name"
               onChange={(e) =>
-                setFormData({ ...formData, name: e.target.value })
+                setFormData({ ...formData, author: e.target.value })
               }
-              value={formData.name}
               minLength={4}
+            />
+          </Form.Group>
+
+          <Form.Group className="mb-3" controlId="formImage">
+            <Avatar image={formData.authorImage} />
+
+            <Form.Control
+              type="file"
+              accept={".png"}
+              onChange={(e: any) => onImageChange(e.target.files)}
             />
           </Form.Group>
 
