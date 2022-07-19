@@ -17,7 +17,7 @@
     "dist/"
   ],
   "scripts": {
-    "generate": "node src/swagger-codegen.js --input src/resources/post-it.yaml --output ./src/generated/swagger --name post-it",
+    "generate": "node src/swagger-codegen.js --input ../shared/post-it.yaml --output ./src/generated/swagger --name post-it",
     "start": "nodemon src/index.ts",
     "build": "npm run clean && npm run lint && npm run generate && tsc",
     "clean": "(rm -r ./.nyc_output || true) && (rm -r ./coverage || true) && (rm -r ./dist || true)",

@@ -72,7 +72,7 @@ const init = (): Context => {
 
       const limiter = rateLimit({
         windowMs: 1000 * 60 * 15,
-        max: 1000,
+        max: 1000000,
         standardHeaders: true,
         legacyHeaders: false,
         store: new RedisStore({

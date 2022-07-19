@@ -2,7 +2,7 @@ import React from "react";
 import { Button, Form, InputGroup } from "react-bootstrap";
 import { useDispatch } from "react-redux";
 import { useLocation, useNavigate } from "react-router-dom";
-import { api } from "../../gateway/post-it";
+import { apiWrapper } from "../../gateway/post-it";
 import { setAccount } from "../../store/reducers/user-reducer";
 
 function Login() {
@@ -17,20 +17,19 @@ function Login() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const handleSubmit = async (event: React.FormEvent) => {
-    //TODO - validate
+  const handleSubmit = async () => {
     setFormData({ ...formData, loading: true });
     await doLogin();
   };
 
   const doLogin = async () => {
     try {
-      const loginResponse = await api.user.login({
-        email: formData.email,
-        password: formData.password,
-      });
+      const loginResponse = await apiWrapper.user.login(
+        formData.email,
+        formData.password
+      );
 
-      dispatch(setAccount(loginResponse.data.account));
+      dispatch(setAccount(loginResponse));
 
       const locationState = location.state as { from?: Location };
       const from = locationState?.from?.pathname || "/";
@@ -38,27 +37,10 @@ function Login() {
       if (from === "/logout" || from === "/404") navigate("/");
       else navigate(from);
     } catch (error) {
-      const errorMessage = () => {
-        if (error instanceof Response) {
-          switch (error.status) {
-            case 400:
-              return "invalid input";
-            case 401:
-              return "failed login";
-            case 409:
-              return "Too many requests";
-            default:
-              break;
-          }
-        }
-
-        return "something bad happened";
-      };
-
       setFormData({
         ...formData,
         loading: false,
-        error: errorMessage(),
+        error: String(error),
       });
     }
   };

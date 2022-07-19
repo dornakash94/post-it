@@ -6,7 +6,7 @@ import mongooseUniqueValidator from "mongoose-unique-validator";
 const userSchema = new mongoose.Schema({
   email: { type: String, required: true, unique: true },
   password: { type: String, required: true },
-  author: { type: String, required: true },
+  author: { type: String, required: true, unique: true },
   author_image: { type: String, required: false },
 });
 
@@ -38,11 +38,17 @@ const getUsersByEmails = async (
   return result;
 };
 
-const insert = (userDto: UserDto): Promise<boolean> => {
+const insert = (userDto: UserDto): Promise<string | undefined> => {
   return mongoUser
     .create(userDto)
-    .then(() => true)
-    .catch(() => false);
+    .then(() => undefined)
+    .catch((err) => {
+      if (err instanceof mongoose.Error.ValidatorError) {
+        return err.path;
+      }
+
+      return err;
+    });
 };
 
 const mapMongoToDto = (

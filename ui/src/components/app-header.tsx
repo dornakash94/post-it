@@ -2,6 +2,8 @@ import { Container, Nav, Navbar } from "react-bootstrap";
 import { useSelector } from "react-redux";
 import { accountSelector } from "../store";
 import { useNavigate } from "react-router-dom";
+import Avatar from "./avatar";
+import homeIcon from "../resources/home-icon.jpg";
 
 function AppHeader() {
   const account = useSelector(accountSelector);
@@ -12,6 +14,10 @@ function AppHeader() {
       return (
         <Nav>
           <Nav.Link href="/logout">Log-out</Nav.Link>
+          <Avatar
+            image={account.author_image}
+            style={{ width: 40, height: 40 }}
+          />
         </Nav>
       );
     } else {
@@ -25,13 +31,19 @@ function AppHeader() {
   };
 
   return (
-    <Navbar bg="dark" variant="dark">
+    <Navbar style={{ marginBottom: 30 }} bg="dark" variant="dark">
       <Container>
-        <Navbar.Brand href="#" onClick={() => navigate("/")}>
+        <Navbar.Brand
+          style={{ marginBottom: 8 }}
+          href="#"
+          onClick={() => navigate("/")}
+        >
           Post-it
         </Navbar.Brand>
         <Nav className="me-auto">
-          <Nav.Link onClick={() => navigate("/")}>Home</Nav.Link>
+          <Nav.Link style={{ marginBottom: 6 }} onClick={() => navigate("/")}>
+            <img src={homeIcon} style={{ width: 40, height: 30 }} />
+          </Nav.Link>
         </Nav>
         <SwitchButtons />
       </Container>

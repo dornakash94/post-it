@@ -19,7 +19,6 @@ const controller: Controller<
     headers: Api.RequestHeaders,
     body: Api.RequestBody
   ): Promise<ControllerResponse<Api.ResponseBody>> => {
-    //TODO - throttle so user wont try endless passwords aka brute force
     const user = await index.userDao.get(body.email);
 
     const loginSuccessfully =
@@ -36,6 +35,7 @@ const controller: Controller<
       account: {
         token: index.jwtInstance.createToken({ email: body.email }),
         author: user.author,
+        author_image: user.author_image,
       },
     };
     return {

@@ -26,7 +26,6 @@ const controller: Controller<
     body: Api.RequestBody,
     session: Session
   ): Promise<ControllerResponse<Api.ResponseBody>> => {
-    //TODO - throttle so user wont try to spam us
     validateBase64Image(body.post?.image);
     const postDto = await index.postDao.getPost(params.postId);
 
@@ -51,7 +50,8 @@ const controller: Controller<
       image: body.post?.image || postDto.image,
     };
 
-    const success = await index.postDao.editPost(newPostDto);
+    const success =
+      newPostDto === postDto || (await index.postDao.editPost(newPostDto));
 
     if (success) {
       const post = await mapPostDtoToPost(newPostDto);

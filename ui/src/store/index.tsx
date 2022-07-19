@@ -1,19 +1,16 @@
 import { configureStore } from "@reduxjs/toolkit";
-import { postSlice } from "./reducers/post-reducer";
 import { accountSlice } from "./reducers/user-reducer";
+import { postsSlice } from "./reducers/post-reducer";
 
 const store = configureStore({
   reducer: {
     account: accountSlice.reducer,
-    post: postSlice.reducer,
+    post: postsSlice.reducer,
   },
 });
 
 type RootState = ReturnType<typeof store.getState>;
 export const accountSelector = (state: RootState) => state.account.account;
-export const postSummariesSelector = (state: RootState) =>
-  state.post.postSummaries;
-export const postIdToPostSelector = (state: RootState) =>
-  state.post.postIdToPost;
+export const postStateSelector = (state: RootState) => state.post;
 
 export default store;

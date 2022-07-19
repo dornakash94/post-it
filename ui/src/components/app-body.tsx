@@ -6,20 +6,18 @@ import Login from "./pages/login";
 import Logout from "./pages/logout";
 import NotFound from "./pages/not-found";
 import Register from "./pages/register";
-import UserHeader from "./user-header";
 
 interface EnforcerProps {
   Component: React.FC;
 }
 
-function Page() {
+function AppBody() {
   const TokenEnforcer = ({ Component }: EnforcerProps) => {
     const location = useLocation();
     const account = useSelector(accountSelector);
 
     return account ? (
       <div>
-        <UserHeader />
         <Component />
       </div>
     ) : (
@@ -47,4 +45,4 @@ function Page() {
   );
 }
 
-export default Page;
+export default AppBody;

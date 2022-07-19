@@ -21,7 +21,6 @@ const controller: Controller<
     headers: Api.RequestHeaders,
     body: Api.RequestBody
   ): Promise<ControllerResponse<Api.ResponseBody>> => {
-    //TODO throttle so user wont spam us
     if (!emailValidator.validate(body.email)) {
       return Promise.resolve({
         code: 400,
@@ -32,18 +31,19 @@ const controller: Controller<
 
     const salt = await bcrypt.genSalt();
     const password = await bcrypt.hash(body.password, salt);
-    const success = await index.userDao.insert({
+    const error = await index.userDao.insert({
       email: body.email,
       password: password,
       author: body.author,
       author_image: body.author_image,
     });
 
-    if (success) {
+    if (!error) {
       const response: Api.ResponseBody = {
         account: {
           token: index.jwtInstance.createToken({ email: body.email }),
           author: body.author,
+          author_image: body.author_image,
         },
       };
 
@@ -51,7 +51,7 @@ const controller: Controller<
         body: response,
       };
     } else {
-      return { code: 409, error: "email is already exists" };
+      return { code: 409, error };
     }
   },
 };

@@ -1,15 +1,19 @@
 import React from "react";
 import { Button, Form } from "react-bootstrap";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { Post } from "../generated/swagger/post-it";
-import { api } from "../gateway/post-it";
+import { apiWrapper } from "../gateway/post-it";
 import { accountSelector } from "../store";
 import Avatar from "./avatar";
 import uploadIcon from "../resources/upload.png";
+import { addPosts } from "../store/reducers/post-reducer";
 
 export default () => {
   const account = useSelector(accountSelector);
   if (!account?.token) return <div />;
+  const { token } = account;
+
+  const dispatch = useDispatch();
 
   const [formData, setFormData] = React.useState({
     post: {} as Post,
@@ -37,11 +41,9 @@ export default () => {
 
   const sendPost = async () => {
     try {
-      await api.posts.createPost(
-        {
-          post: formData.post,
-        },
-        { headers: { Authorization: account.token! } }
+      const createPostResponse = await apiWrapper.posts.createPost(
+        token,
+        formData.post
       );
 
       setFormData({
@@ -49,23 +51,14 @@ export default () => {
         loading: false,
         post: {},
       });
+      if (createPostResponse) {
+        dispatch(addPosts([createPostResponse]));
+      }
     } catch (error) {
-      const errorMessage = () => {
-        if (error instanceof Response) {
-          switch (error.status) {
-            case 400:
-              return "invalid input";
-            default:
-              break;
-          }
-        }
-        return "something bad happened";
-      };
-
       setFormData({
         ...formData,
         loading: false,
-        error: errorMessage(),
+        error: String(error),
       });
     }
   };
@@ -78,19 +71,17 @@ export default () => {
   };
 
   return (
-    <div>
-      <Form
-        style={{
-          flex: 4000,
-        }}
-        className="mb-0"
-        onSubmit={handleSubmit}
-      >
+    <div style={{ width: "24rem" }}>
+      <Form className="mb-0" onSubmit={handleSubmit}>
         <Avatar
           image={account.author_image}
-          style={{ width: 40, height: 40, marginRight: 250 }}
+          style={{ width: 40, height: 40, float: "left" }}
         />
+        <h5 style={{ marginLeft: 5, marginTop: 13, float: "left" }}>
+          {account.author}
+        </h5>
         <Form.Control
+          minLength={1}
           type="text"
           placeholder="Title"
           autoFocus
@@ -103,7 +94,10 @@ export default () => {
           value={formData.post.title || ""}
         />
         {formData.post.image && (
-          <img src={formData.post.image} style={{ width: 250, height: 250 }} />
+          <img
+            src={formData.post.image}
+            style={{ width: "24rem", height: 250 }}
+          />
         )}
         <Form.Control
           type="text"
@@ -119,14 +113,14 @@ export default () => {
           value={formData.post.content || ""}
         />
         <br />
-        <div style={{ height: 38, width: 300 }}>
+        <div style={{ height: 38, width: "24rem" }}>
           <div style={{ float: "right" }}>
             <label className="input-label">
               <img src={uploadIcon} style={{ width: 25, height: 25 }} />
               <input
                 type="file"
                 id="file-input"
-                accept={".png"}
+                accept={".jpg"}
                 onChange={(e: any) => onImageChange(e.target.files)}
               />
             </label>

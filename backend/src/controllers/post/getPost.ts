@@ -21,7 +21,6 @@ const controller: Controller<
     body: Api.RequestBody,
     session: Session
   ): Promise<ControllerResponse<Api.ResponseBody>> => {
-    //TODO - throttle so user wont try to spam us
     const postDto = await index.postDao.getPost(params.postId);
 
     if (!postDto) {

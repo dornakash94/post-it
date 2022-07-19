@@ -112,8 +112,10 @@ export const mapPostDtoToPost = async (
     creationTime: fieldMask.has("creationTime")
       ? postDto.creationTime
       : undefined,
-    author: authorAndImage?.author,
-    author_image: authorAndImage?.author_image,
+    author: fieldMask.has("author") ? authorAndImage?.author : undefined,
+    author_image: fieldMask.has("author_image")
+      ? authorAndImage?.author_image
+      : undefined,
   };
 };
 

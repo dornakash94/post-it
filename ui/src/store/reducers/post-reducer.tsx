@@ -1,30 +1,34 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { Post, PostSummary } from "../../generated/swagger/post-it";
+import { Post } from "../../generated/swagger/post-it";
 
 interface PostState {
-  postSummaries: PostSummary[];
-  postIdToPost: { [id: number]: Post };
+  posts: Post[];
 }
 
 const initialState: PostState = {
-  postSummaries: [],
-  postIdToPost: {},
+  posts: [],
 };
 
-export const postSlice = createSlice({
-  name: "postStore",
+export const postsSlice = createSlice({
+  name: "posts",
   initialState,
   reducers: {
-    setPostSummaries: (state, action: PayloadAction<PostSummary[]>) => {
-      state.postSummaries = action.payload;
-    },
-    setPost: (state, action: PayloadAction<Post>) => {
-      const newPosIdToPost = { ...state.postIdToPost };
-      newPosIdToPost[action.payload.id!] = action.payload;
+    addPosts: (state, action: PayloadAction<Post[]>) => {
+      const postMap = new Map(state.posts.map((post) => [post.id, post]));
+      const changesMap = new Map(action.payload.map((post) => [post.id, post]));
 
-      state.postIdToPost = newPosIdToPost;
+      const combined = new Map([...postMap, ...changesMap]);
+
+      state.posts = Array.from(combined.values()).sort((a, b) => b.id! - a.id!);
+    },
+    deletePost: (state, action: PayloadAction<number>) => {
+      const postId = action.payload;
+      const postsWithoutPostId = state.posts.filter(
+        (post) => post.id !== postId
+      );
+      state.posts = postsWithoutPostId;
     },
   },
 });
 
-export const { setPostSummaries, setPost } = postSlice.actions;
+export const { addPosts, deletePost } = postsSlice.actions;

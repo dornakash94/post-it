@@ -1,6 +1,6 @@
 import "./App.css";
 import "bootstrap/dist/css/bootstrap.min.css";
-import Page from "./components/page";
+import AppBody from "./components/app-body";
 import AppHeader from "./components/app-header";
 import { Provider } from "react-redux";
 import store from "./store";
@@ -10,18 +10,15 @@ function App() {
   return (
     <div className="App">
       <AppHeader />
-      <br />
-      <Page />
+      <AppBody />
     </div>
   );
 }
 
-const AppWrapper = () => (
+export default () => (
   <Provider store={store}>
     <BrowserRouter>
       <App />
     </BrowserRouter>
   </Provider>
 );
-
-export default AppWrapper;

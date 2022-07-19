@@ -2,7 +2,7 @@ import React from "react";
 import { Button, Form, InputGroup } from "react-bootstrap";
 import { useDispatch } from "react-redux";
 import { useLocation, useNavigate } from "react-router-dom";
-import { api } from "../../gateway/post-it";
+import { apiWrapper } from "../../gateway/post-it";
 import { setAccount } from "../../store/reducers/user-reducer";
 import Avatar from "../avatar";
 
@@ -39,24 +39,30 @@ function Register() {
       const reader = new FileReader();
       reader.onload = (e) => {
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        setFormData({ ...formData, authorImage: e.target!.result as string });
+        setFormData({
+          ...formData,
+          authorImage: e.target!.result as string,
+        });
       };
       reader.readAsDataURL(files[0]);
     } else {
-      setFormData({ ...formData, authorImage: undefined });
+      setFormData({
+        ...formData,
+        authorImage: undefined,
+      });
     }
   };
 
   const doRegister = async () => {
     try {
-      const registerResponse = await api.user.register({
-        email: formData.email,
-        password: formData.password,
-        author: formData.author,
-        author_image: formData.authorImage,
-      });
+      const registerResponse = await apiWrapper.user.register(
+        formData.email,
+        formData.password,
+        formData.author,
+        formData.authorImage
+      );
 
-      dispatch(setAccount(registerResponse.data.account));
+      dispatch(setAccount(registerResponse));
 
       const locationState = location.state as { from?: Location };
       const from = locationState?.from?.pathname || "/";
@@ -64,25 +70,10 @@ function Register() {
       if (from === "/logout" || from === "/404") navigate("/");
       else navigate(from);
     } catch (error) {
-      const errorMessage = () => {
-        if (error instanceof Response) {
-          switch (error.status) {
-            case 400:
-              return "invalid input";
-            case 409:
-              return "account already exists";
-            default:
-              break;
-          }
-        }
-
-        return "something bad happened";
-      };
-
       setFormData({
         ...formData,
         loading: false,
-        error: errorMessage(),
+        error: String(error),
       });
     }
   };
@@ -93,11 +84,14 @@ function Register() {
         <Form className="mb-0" onSubmit={handleSubmit}>
           <Form.Group className="mb-3" controlId="formEmail">
             <Form.Control
+              required
               type="email"
               placeholder="Enter email"
+              isInvalid={!formData.email.includes("@")}
               onChange={(e) =>
                 setFormData({ ...formData, email: e.target.value })
               }
+              value={formData.email}
             />
           </Form.Group>
 
@@ -111,6 +105,7 @@ function Register() {
                 }
                 isInvalid={formData.password.length < 4}
                 minLength={4}
+                value={formData.password}
               />
             </InputGroup>
           </Form.Group>
@@ -123,6 +118,7 @@ function Register() {
                 onChange={(e) =>
                   setFormData({ ...formData, confirmPassword: e.target.value })
                 }
+                value={formData.confirmPassword}
                 isInvalid={
                   formData.confirmPassword !== "" &&
                   formData.password !== formData.confirmPassword
@@ -142,6 +138,7 @@ function Register() {
               onChange={(e) =>
                 setFormData({ ...formData, author: e.target.value })
               }
+              value={formData.author}
               minLength={4}
             />
           </Form.Group>
@@ -151,7 +148,7 @@ function Register() {
 
             <Form.Control
               type="file"
-              accept={".png"}
+              accept={".jpg"}
               onChange={(e: any) => onImageChange(e.target.files)}
             />
           </Form.Group>
