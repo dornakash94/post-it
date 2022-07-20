@@ -4,4 +4,3 @@ npm-debug.log
 .idea
 .env
 dist
-docker-compose.yaml

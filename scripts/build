@@ -1,1 +1,1 @@
-docker build --tag post-it-backend backend/.
+docker build -t post-it-backend -f backend/Dockerfile .

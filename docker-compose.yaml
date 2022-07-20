@@ -19,7 +19,7 @@ services:
       - JWT_SECRET=myKeyFromEnv
       - MONGO_CONNECTION=mongodb://docker:mongopw@mongodb:27017
       - REDIS_CONNECTION=redis://default:redispw@redis:6379
+      - WARN=off
     ports:
       - 80:8080
-    volumes:
-       - C:\Users\DOR\Desktop\post-it\backend\dist:/usr/src/app/dist
+    

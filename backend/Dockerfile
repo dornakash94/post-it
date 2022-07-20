@@ -1,13 +1,23 @@
 FROM node:lts-alpine
-
 RUN apk update && apk --no-cache --update add build-base 
-
-WORKDIR /usr/src/app
-COPY . .
-
+WORKDIR /usr/post-it/backend
+COPY shared ../shared
+COPY backend/package.json ./
+COPY backend/tsconfig.json ./
+COPY backend/src ./src
 RUN npm install
+RUN npm run build
 
-
-USER node
+FROM node:lts-alpine
+RUN apk update && apk --no-cache --update add build-base 
+WORKDIR /usr/post-it/backend
+COPY shared ../shared
+COPY backend/package.json ./
+COPY backend/tsconfig.json ./
+COPY backend/src/swagger-codegen.js ./src/swagger-codegen.js
+RUN npm install --only=production
+COPY --from=0 /usr/post-it/backend/dist ./dist
+RUN npm install pm2 -g
 EXPOSE 8000
-CMD [ "node", "dist/index.js" ]
+USER node
+CMD ["pm2-runtime","dist/index.js"]

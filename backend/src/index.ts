@@ -81,55 +81,51 @@ const init = (): Context => {
         }),
       });
 
-      createMiddleware(
-        "src/resources/post-it.yaml",
-        app,
-        (_err, middleware) => {
-          app.use(
-            limiter,
-            middleware.metadata(),
-            middleware.CORS(),
-            middleware.files(),
-            middleware.parseRequest(),
-            middleware.validateRequest()
-          );
+      createMiddleware("../shared/post-it.yaml", app, (_err, middleware) => {
+        app.use(
+          limiter,
+          middleware.metadata(),
+          middleware.CORS(),
+          middleware.files(),
+          middleware.parseRequest(),
+          middleware.validateRequest()
+        );
 
-          controllers.forEach((controller) => {
-            app[controller.method](
-              controller.path,
-              async (req: Request, res: Response) => {
-                try {
-                  const response: ControllerResponse<unknown> =
-                    await controller.handler(
-                      req.params,
-                      req.query,
-                      req.headers,
-                      req.body
-                    );
-                  res
-                    .status(response.code || 200)
-                    .send(response.body || response.error);
-                } catch (e: any) {
-                  logger.error(e);
-                  res
-                    .status(e.code || 500)
-                    .send(e.error || "something went wrong");
-                }
+        controllers.forEach((controller) => {
+          app[controller.method](
+            controller.path,
+            async (req: Request, res: Response) => {
+              try {
+                const response: ControllerResponse<unknown> =
+                  await controller.handler(
+                    req.params,
+                    req.query,
+                    req.headers,
+                    req.body
+                  );
+                res
+                  .status(response.code || 200)
+                  .send(response.body || response.error);
+              } catch (e: any) {
+                logger.error(e);
+                res
+                  .status(e.code || 500)
+                  .send(e.error || "something went wrong");
               }
-            );
-          });
+            }
+          );
+        });
 
-          // Error handler to send the swagger validation response
-          app.use((err: any, _req: Request, res: Response, _next: any) => {
-            res.status(err.status).json({
-              type: "SCHEMA VALIDATION FAILED",
-              message: err.message.replace(/\r?\n|\r/g, ".").replace(/"/g, "'"),
-            });
+        // Error handler to send the swagger validation response
+        app.use((err: any, _req: Request, res: Response, _next: any) => {
+          res.status(err.status).json({
+            type: "SCHEMA VALIDATION FAILED",
+            message: err.message.replace(/\r?\n|\r/g, ".").replace(/"/g, "'"),
           });
+        });
 
-          return Promise.resolve();
-        }
-      );
+        return Promise.resolve();
+      });
 
       serverPromise = Promise.resolve(
         app.listen(8080, function () {
