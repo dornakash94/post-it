@@ -11,6 +11,7 @@ const defaultAuthorWithImage: AuthorWithImage = {
   author: "Unknown",
   author_image: undefined,
 };
+
 const allFields: Set<string> = new Set([
   "id",
   "title",
@@ -23,7 +24,7 @@ const allFields: Set<string> = new Set([
 
 export const mapPostDtosToPosts = async (
   postDtos: PostDto[],
-  fieldMask: Set<string> = allFields
+  fieldMask: Set<string>
 ): Promise<Post[]> => {
   if (fieldMask.size === 0) {
     return Promise.resolve([]);
@@ -83,7 +84,6 @@ export const mapPostDtosToPosts = async (
       )
     )
   );
-  // }
 };
 
 export const mapPostDtoToPost = async (
@@ -94,6 +94,7 @@ export const mapPostDtoToPost = async (
   ) => Promise<AuthorWithImage> = defaultEmailToAuthorWithImage
 ): Promise<Post> => {
   if (fieldMask.size === 0) return {};
+
   const getAuthorAndImage = (): Promise<AuthorWithImage | undefined> => {
     if (fieldMask.has("author") || fieldMask.has("author_image")) {
       return emailToAuthorWithImage(postDto.email);

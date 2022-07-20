@@ -1,4 +1,6 @@
+import { useDispatch } from "react-redux";
 import { Account, Api, Post } from "../generated/swagger/post-it";
+import { logout } from "../store/reducers/user-reducer";
 
 const api = new Api({ baseUrl: "http://localhost/v1" });
 
@@ -71,6 +73,11 @@ const login = (
   }
 };
 
+const dispatchLogout = () => {
+  const dispatch = useDispatch();
+  dispatch(logout());
+};
+
 const getAllPosts = (
   token: string,
   pageNumber: number,
@@ -87,7 +94,20 @@ const getAllPosts = (
       },
       { headers: { Authorization: token } }
     )
-    .then((response) => response.data.posts || []);
+    .then((response) => response.data.posts || [])
+    .catch(error => {
+      if (error instanceof Response) {
+        switch (error.status) {
+          case 401:
+            dispatchLogout()
+          default:
+            break;
+        }
+      }
+
+      return Promise.reject(error);
+    })
+  };
 };
 
 const createPost = (token: string, post: Post): Promise<Post | undefined> => {

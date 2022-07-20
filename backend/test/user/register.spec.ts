@@ -28,7 +28,7 @@ describe("register rest", () => {
     ).equals(request.email);
   });
 
-  it("bed request", async () => {
+  it("bad request", async () => {
     const request: User.Register.RequestBody = {
       email: randText(),
       password: randPassword(),

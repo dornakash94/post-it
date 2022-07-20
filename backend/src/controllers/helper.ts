@@ -86,9 +86,12 @@ export const validateBase64Image = (base64Str?: string): void => {
   }
 };
 
-export const validateMandatoryParam = <T>(paramName: string, value?: T) => {
+export const validateMandatoryParam = <T>(paramName: string, value?: T): T => {
   if (typeof value === "undefined" || value === null)
     throwError(400, `missing parameter ${paramName}`);
+
+  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+  return value!;
 };
 
 export const asArr = <T>(something: T[] | undefined): T[] | undefined => {

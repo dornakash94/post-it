@@ -36,6 +36,8 @@ describe("edit post rest", () => {
         image: randText(),
       },
     };
+
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     const id: number = createdPost.post.id!;
     const response = await requestWithSupertest
       .put(`/v1/posts/post/${id}`)
@@ -76,6 +78,7 @@ describe("edit post rest", () => {
         image: randomBase64WithMime(),
       },
     };
+
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     const id: number = createdPost.post.id!;
     const response = await requestWithSupertest

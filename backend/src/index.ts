@@ -44,8 +44,9 @@ const init = (): Context => {
 
   const result = {
     redisClient: undefined as any,
-    isReady: undefined as any,
-    close: undefined as any,
+    isReady: () => Promise.resolve(false),
+    // eslint-disable-next-line @typescript-eslint/no-empty-function
+    close: () => {},
     app,
     jwtInstance,
     userDao,
@@ -83,12 +84,12 @@ const init = (): Context => {
 
       createMiddleware("../shared/post-it.yaml", app, (_err, middleware) => {
         app.use(
-          limiter,
           middleware.metadata(),
           middleware.CORS(),
           middleware.files(),
           middleware.parseRequest(),
-          middleware.validateRequest()
+          middleware.validateRequest(),
+          limiter
         );
 
         controllers.forEach((controller) => {

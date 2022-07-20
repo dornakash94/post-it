@@ -43,8 +43,13 @@ const insert = (userDto: UserDto): Promise<string | undefined> => {
     .create(userDto)
     .then(() => undefined)
     .catch((err) => {
-      if (err instanceof mongoose.Error.ValidatorError) {
-        return err.path;
+      if (err.name === "ValidationError") {
+        const errors = err.errors;
+
+        return {
+          message: "unique validation failed",
+          fields: Object.keys(errors),
+        };
       }
 
       return err;

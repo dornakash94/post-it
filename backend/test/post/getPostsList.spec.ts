@@ -13,10 +13,7 @@ describe("get post list rest", () => {
       .set("Authorization", createdPost.token);
 
     const responseBody: Posts.GetAllPosts.ResponseBody = {
-      postsSummaries: [
-        response.body.postsSummaries[0],
-        response.body.postsSummaries[1],
-      ],
+      posts: [response.body.posts[0], response.body.posts[1]],
     };
 
     const expectedResponseBody: Posts.GetAllPosts.ResponseBody = {

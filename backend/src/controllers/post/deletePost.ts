@@ -21,6 +21,7 @@ const controller: Controller<
     session: Session
   ): Promise<ControllerResponse<Api.ResponseBody>> => {
     const post = await index.postDao.getPost(params.postId);
+
     if (!post) {
       return Promise.resolve({
         code: 404,

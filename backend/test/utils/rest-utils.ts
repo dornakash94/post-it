@@ -22,8 +22,7 @@ export const createAccountAndToken = async (): Promise<AccountDetails> => {
 
   return {
     ...registerRequest,
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-    token: registerResponseBody.account!.token!,
+    token: registerResponseBody.account?.token || "",
   };
 };
 
@@ -50,8 +49,7 @@ export const createPostWithToken = async (): Promise<PostDetail> => {
   const createPostResponseBody: Posts.CreatePost.ResponseBody = post.body;
 
   return {
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-    post: createPostResponseBody.post!,
+    post: createPostResponseBody.post || {},
     token: accountDetails.token,
   };
 };

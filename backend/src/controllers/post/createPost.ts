@@ -28,14 +28,14 @@ const controller: Controller<
     body: Api.RequestBody,
     session: Session
   ): Promise<ControllerResponse<Api.ResponseBody>> => {
-    validateMandatoryParam("title", body.post.title);
-    validateMandatoryParam("content", body.post.content);
+    const title = validateMandatoryParam("title", body.post.title);
+    const content = validateMandatoryParam("content", body.post.content);
     validateBase64Image(body.post.image);
 
     const postDto: PostDto = {
-      title: body.post!.title!,
-      content: body.post!.content!,
-      image: body.post.image ? body.post.image : undefined,
+      title,
+      content,
+      image: body.post.image,
       email: session.email,
       creationTime: new Date().getTime(),
     };
