@@ -96,6 +96,7 @@ describe("create post rest", () => {
         image: request.post.image,
         creationTime: responseBody.post?.creationTime,
         author: accountDetails.author,
+        author_image: accountDetails.author_image,
       },
     };
 

@@ -5,7 +5,7 @@ const fs = require("fs").promises;
 
 const output = path.resolve(process.cwd(), "./" + args.output);
 const name = args.name + ".ts";
-
+const generateClient = args.generateClient || false;
 generateApi({
   name,
   input: path.resolve(process.cwd(), "./" + args.input),
@@ -13,7 +13,7 @@ generateApi({
   cleanOutput: true,
   extractRequestParams: true,
   extractRequestBody: true,
-  generateClient: true,
+  generateClient,
   generateRouteTypes: true,
 }).then(() => {
   const file = output + "/" + name;

@@ -11,6 +11,7 @@ export const createAccountAndToken = async (): Promise<AccountDetails> => {
     email: randEmail(),
     password: randPassword(),
     author: randFullName(),
+    author_image: randomBase64WithMime(),
   };
 
   const registerResponse = await requestWithSupertest
@@ -30,6 +31,7 @@ interface AccountDetails {
   email: string;
   password: string;
   author: string;
+  author_image?: string;
   token: string;
 }
 export const createPostWithToken = async (): Promise<PostDetail> => {

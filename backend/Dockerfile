@@ -14,7 +14,6 @@ WORKDIR /usr/post-it/backend
 COPY shared ../shared
 COPY backend/package.json ./
 COPY backend/tsconfig.json ./
-COPY backend/src/swagger-codegen.js ./src/swagger-codegen.js
 RUN npm install --only=production
 COPY --from=0 /usr/post-it/backend/dist ./dist
 RUN npm install pm2 -g

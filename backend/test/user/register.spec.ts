@@ -43,7 +43,7 @@ describe("register rest", () => {
     expect(res.text).to.equal("invalid email");
   });
 
-  it("already exists", async () => {
+  it("already exists email&author", async () => {
     const request: User.Register.RequestBody = {
       email: randEmail(),
       password: randPassword(),
@@ -60,7 +60,72 @@ describe("register rest", () => {
       .post("/v1/user/register")
       .send(request);
 
+    const error = {
+      message: "unique validation failed",
+      fields: ["author", "email"],
+    };
+
     expect(secondRegister.statusCode).to.equal(409);
-    expect(secondRegister.text).to.equal("email is already exists");
+    expect(secondRegister.body).to.deep.equal(error);
+  });
+  it("already exists email", async () => {
+    const request: User.Register.RequestBody = {
+      email: randEmail(),
+      password: randPassword(),
+      author: randFullName(),
+    };
+    const anotherRequest: User.Register.RequestBody = {
+      email: request.email,
+      password: randPassword(),
+      author: randFullName(),
+    };
+    const res = await requestWithSupertest
+      .post("/v1/user/register")
+      .send(request);
+
+    expect(res.statusCode).to.equal(200);
+
+    const secondRegister = await requestWithSupertest
+      .post("/v1/user/register")
+      .send(anotherRequest);
+
+    const error = {
+      message: "unique validation failed",
+      fields: ["email"],
+    };
+
+    expect(secondRegister.statusCode).to.equal(409);
+    expect(secondRegister.body).to.deep.equal(error);
+  });
+
+  it("already exists author", async () => {
+    const request: User.Register.RequestBody = {
+      email: randEmail(),
+      password: randPassword(),
+      author: randFullName(),
+    };
+    const anotherRequest: User.Register.RequestBody = {
+      email: randEmail(),
+      password: randPassword(),
+      author: request.author,
+    };
+
+    const res = await requestWithSupertest
+      .post("/v1/user/register")
+      .send(request);
+
+    expect(res.statusCode).to.equal(200);
+
+    const secondRegister = await requestWithSupertest
+      .post("/v1/user/register")
+      .send(anotherRequest);
+
+    const error = {
+      message: "unique validation failed",
+      fields: ["author"],
+    };
+
+    expect(secondRegister.statusCode).to.equal(409);
+    expect(secondRegister.body).to.deep.equal(error);
   });
 });

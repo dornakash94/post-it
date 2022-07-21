@@ -26,6 +26,7 @@ describe("get post rest", () => {
         image: createdPost.post?.image,
         creationTime: createdPost.post?.creationTime,
         author: createdPost.post.author,
+        author_image: createdPost.post.author_image,
       },
     };
 

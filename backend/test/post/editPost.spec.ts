@@ -96,6 +96,7 @@ describe("edit post rest", () => {
         image: editRequest.post?.image || createdPost.post?.image,
         creationTime: createdPost.post?.creationTime,
         author: createdPost.post.author,
+        author_image: createdPost.post.author_image,
       },
     };
 

@@ -99,10 +99,10 @@ const init = (): Context => {
               try {
                 const response: ControllerResponse<unknown> =
                   await controller.handler(
-                    req.params,
-                    req.query,
-                    req.headers,
-                    req.body
+                    req.params as any,
+                    req.query as any,
+                    req.headers as any,
+                    req.body as any
                   );
                 res
                   .status(response.code || 200)

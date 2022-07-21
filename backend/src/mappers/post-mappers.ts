@@ -12,7 +12,7 @@ const defaultAuthorWithImage: AuthorWithImage = {
   author_image: undefined,
 };
 
-const allFields: Set<string> = new Set([
+export const allFields: Set<string> = new Set([
   "id",
   "title",
   "content",

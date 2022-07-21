@@ -19,7 +19,7 @@
     "@types/jest": "^27.5.2"
   },
   "scripts": {
-    "generate": "node src/swagger-codegen.js --input .../shared/post-it.yaml --output ./src/generated/swagger --name post-it",
+    "generate": "cp ../shared/swagger-codegen.js node_modules/swagger-codegen.js && --input ../shared/post-it.yaml --output ./src/generated/swagger --name post-it --generateClient true ",
     "start": "react-scripts start",
     "build": "npm run generate && npm run lint && react-scripts build",
     "test": "react-scripts test",
