@@ -1,0 +1,59 @@
+{
+  "name": "post-it",
+  "version": "1.0.0",
+  "description": "message posting system",
+  "keywords": [],
+  "author": {
+    "name": "Dor Nakash"
+  },
+  "license": "Apache License 2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/dor/post-it.git"
+  },
+  "private": true,
+  "scripts": {
+    "generate": "cp ../shared/swagger-codegen.js node_modules/swagger-codegen.js && node node_modules/swagger-codegen.js --input ../shared/post-it.yaml --output ./src/generated/swagger --name post-it --generateClient true ",
+    "start": "react-scripts start",
+    "build": "npm run lint && npm run generate && react-scripts build",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject",
+    "lint": "eslint --ext .ts --ext .tsx --fix ."
+  },
+  "dependencies": {
+    "@reduxjs/toolkit": "^1.8.3",
+    "bootstrap": "^5.2.0",
+    "react": "^18.2.0",
+    "react-bootstrap": "^2.4.0",
+    "react-dom": "^18.2.0",
+    "react-redux": "^8.0.2",
+    "react-router-dom": "^6.3.0",
+    "react-scripts": "5.0.1",
+	"swagger-typescript-api": "^9.3.1",
+    "web-vitals": "^2.1.4"
+  },
+  "devDependencies": {
+    "@testing-library/react": "^13.3.0",
+    "@types/jest": "^27.5.2",
+    "eslint-config-prettier": "^8.5.0",
+    "eslint-plugin-prettier": "^4.2.1"
+  },
+  "eslintConfig": {
+    "extends": [
+      "react-app",
+      "react-app/jest"
+    ]
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  }
+}

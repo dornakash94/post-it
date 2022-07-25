@@ -1,4 +1,4 @@
-FROM node:lts-alpine
+FROM node:lts-alpine as build
 RUN apk update && apk --no-cache --update add build-base 
 WORKDIR /usr/post-it/backend
 COPY shared ../shared
@@ -15,7 +15,7 @@ COPY shared ../shared
 COPY backend/package.json ./
 COPY backend/tsconfig.json ./
 RUN npm install --only=production
-COPY --from=0 /usr/post-it/backend/dist ./dist
+COPY --from=build /usr/post-it/backend/dist ./dist
 RUN npm install pm2 -g
 EXPOSE 8000
 USER node

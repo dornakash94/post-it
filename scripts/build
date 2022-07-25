@@ -1,1 +1,2 @@
-docker build -t post-it-backend -f backend/Dockerfile .
+./scripts/build-backend
+./scripts/build-frontend

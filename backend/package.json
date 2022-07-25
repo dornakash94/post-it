@@ -1,6 +1,6 @@
 {
-  "name": "post-it",
-  "version": "1.0.4",
+  "name": "post-it-backend",
+  "version": "1.0.0",
   "description": "message posting system",
   "keywords": [],
   "author": {
