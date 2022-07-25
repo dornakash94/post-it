@@ -21,5 +21,9 @@ services:
       - REDIS_CONNECTION=redis://default:redispw@redis:6379
       - WARN=off
     ports:
-      - 80:8080
+      - 8080:8080
+  post-it-frontend:
+    image: post-it-frontend:latest
+    ports:
+      - 80:80
     

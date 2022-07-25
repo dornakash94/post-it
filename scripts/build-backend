@@ -1,0 +1,5 @@
+IMAGE=post-it-backend
+VERSION=1.0.0
+
+docker build -t ${IMAGE}:${VERSION} -f backend/Dockerfile .
+docker tag ${IMAGE}:${VERSION} ${IMAGE}:latest
