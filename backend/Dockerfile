@@ -9,7 +9,6 @@ RUN npm install
 RUN npm run build
 
 FROM node:lts-alpine
-RUN apk update && apk --no-cache --update add build-base 
 WORKDIR /usr/post-it/backend
 COPY shared ../shared
 COPY backend/package.json ./
