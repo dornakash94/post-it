@@ -13,7 +13,7 @@ WORKDIR /usr/post-it/backend
 COPY shared ../shared
 COPY backend/package.json ./
 COPY backend/tsconfig.json ./
-RUN npm install
+RUN npm install --only=production
 COPY --from=build /usr/post-it/backend/dist ./dist
 RUN npm install pm2 -g
 EXPOSE 8000
