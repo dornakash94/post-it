@@ -1,2 +1,2 @@
-./scripts/build-backend
-./scripts/build-frontend
+./scripts/build-backend.bat
+./scripts/build-frontend.bat
