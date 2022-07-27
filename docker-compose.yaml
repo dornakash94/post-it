@@ -3,6 +3,7 @@ volumes:
 
 services:
   mongodb:
+    container_name: mongodb
     image: mongo:latest
     environment:
       - MONGO_INITDB_ROOT_USERNAME=docker
@@ -10,10 +11,12 @@ services:
     volumes:
       - data:/data/db
   redis:
+    container_name: redis
     image: redis:latest
     volumes:
       - data:/data
   post-it-backend:
+    container_name: backend
     image: post-it-backend:latest
     environment:
       - JWT_SECRET=myKeyFromEnv
@@ -23,6 +26,7 @@ services:
     ports:
       - 8080:8080
   post-it-frontend:
+    container_name: frontend
     image: post-it-frontend:latest
     ports:
       - 80:80
